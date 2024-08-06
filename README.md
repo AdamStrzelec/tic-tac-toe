@@ -9,3 +9,7 @@ Go to project root folder
 ## Run project
 
 ### `yarn start`
+
+## Run tests
+
+### `yarn test`
