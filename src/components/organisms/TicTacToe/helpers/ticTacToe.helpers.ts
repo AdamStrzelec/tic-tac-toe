@@ -1,9 +1,9 @@
 import {
 	Cell,
 	Result,
-} from 'src/components/organisms/TicTacToe/TicTacToe.machine';
+} from 'src/components/organisms/TicTacToe/machine/TicTacToe.machine';
 
-export const checkForWinner = (board: Cell[][]): Result => {
+const checkForWinner = (board: Cell[][]): Result => {
 	// Helper function to check if all elements in the array are the same and not null
 	const allEqual = (arr: Cell[]): 'wonX' | 'wonO' | null => {
 		const uniqueCells = new Set(arr);
@@ -65,6 +65,38 @@ export const checkForWinner = (board: Cell[][]): Result => {
 	return 'inProgress';
 };
 
+const getRandomInt = (max: number): number => {
+	return Math.floor(Math.random() * max);
+};
+
+const findAndReplaceRandomNull = (matrix: Cell[][]): Cell[][] => {
+	// find all positions that are null
+	const nullPositions: [number, number][] = [];
+
+	for (let i = 0; i < matrix.length; i++) {
+		for (let j = 0; j < matrix[i].length; j++) {
+			if (matrix[i][j] === null) {
+				nullPositions.push([i, j]);
+			}
+		}
+	}
+
+	// If none, return array
+	if (nullPositions.length === 0) {
+		return matrix;
+	}
+
+	// Choose a random item with nulls
+	const randomIndex = getRandomInt(nullPositions.length);
+	const [randomRow, randomCol] = nullPositions[randomIndex];
+
+	// Replace the random item with 'o'
+	matrix[randomRow][randomCol] = 'o';
+
+	return matrix;
+};
+
 export const TicTacToeHelpers = {
 	checkForWinner,
+	findAndReplaceRandomNull,
 };

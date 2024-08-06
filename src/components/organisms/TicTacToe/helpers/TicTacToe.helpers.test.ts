@@ -1,4 +1,4 @@
-import { Cell } from 'src/components/organisms/TicTacToe/TicTacToe.machine';
+import { Cell } from 'src/components/organisms/TicTacToe/machine/TicTacToe.machine';
 import { TicTacToeHelpers } from './ticTacToe.helpers';
 
 const board3x3x: Cell[][] = [

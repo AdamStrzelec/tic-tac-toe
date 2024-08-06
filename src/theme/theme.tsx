@@ -5,6 +5,10 @@ export const theme = {
 	colors: {
 		white: '#ffffff',
 		text: '#000000',
+		separator: '#629ACC',
+		buttonText: '#303F53',
+		buttonBackground: '#89D3FF',
+		infoBackground: '#0F594F',
 	},
 };
 

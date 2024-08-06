@@ -1,6 +1,7 @@
 import { createMachine, assign } from 'xstate';
+import { TicTacToeHelpers } from '../helpers/ticTacToe.helpers';
 
-type Player = 'o' | 'x';
+export type Player = 'o' | 'x';
 
 export type Cell = Player | null;
 
@@ -8,11 +9,18 @@ export type Result = 'wonO' | 'wonX' | 'draw' | 'inProgress';
 
 export type BoardSize = 3 | 4 | 5;
 
+export type GameType = 'singlePlayer' | 'multiPlayer';
+
 const context = {
 	board: Array.from({ length: 3 }, () => Array(3).fill(null)) as Cell[][],
 	boardSize: 3 as BoardSize,
 	playerTurn: 'x' as Player,
 	result: 'inProgress' as Result,
+	points: {
+		playerX: 0,
+		playerO: 0,
+	},
+	gameType: 'multiPlayer' as GameType,
 };
 
 export const ticTacToeMachine = createMachine(
@@ -33,6 +41,15 @@ export const ticTacToeMachine = createMachine(
 				| {
 						type: 'CHECK_RESULT';
 						value: Cell[][];
+						// eslint-disable-next-line no-mixed-spaces-and-tabs
+				  }
+				| {
+						type: 'MAKE_RANDOM_MOVE';
+						// eslint-disable-next-line no-mixed-spaces-and-tabs
+				  }
+				| {
+						type: 'SET_GAME_TYPE';
+						value: GameType;
 						// eslint-disable-next-line no-mixed-spaces-and-tabs
 				  }
 				| {
@@ -61,6 +78,18 @@ export const ticTacToeMachine = createMachine(
 						{
 							target: 'playing',
 							actions: 'checkResult',
+						},
+					],
+					MAKE_RANDOM_MOVE: [
+						{
+							target: 'playing',
+							actions: 'makeRandomMove',
+						},
+					],
+					SET_GAME_TYPE: [
+						{
+							target: 'playing',
+							actions: 'setGameType',
 						},
 					],
 					RESET: [
@@ -117,22 +146,48 @@ export const ticTacToeMachine = createMachine(
 				result: () => 'inProgress' as Result,
 			}),
 			checkResult: assign({
-				result: ({ context, event }) => {
-					if (event.type === 'CHECK_RESULT') {
-						console.log('check result');
-					}
-					return context.result;
+				result: ({ context }) =>
+					TicTacToeHelpers.checkForWinner(context.board),
+				points: ({ context }) => {
+					const result = TicTacToeHelpers.checkForWinner(
+						context.board,
+					);
+					return {
+						playerO:
+							result === 'wonO'
+								? (context.points.playerO += 1)
+								: context.points.playerO,
+						playerX:
+							result === 'wonX'
+								? (context.points.playerX += 1)
+								: context.points.playerX,
+					};
 				},
 			}),
-			newGame: assign({
-				board: ({ context, event }) => {
-					if (event.type === 'NEW_GAME') {
-						return Array.from({ length: context.boardSize }, () =>
-							Array(context.boardSize).fill(null),
-						);
+			setGameType: assign({
+				board: ({ context }) =>
+					Array.from({ length: context.boardSize }, () =>
+						Array(context.boardSize).fill(null),
+					),
+				playerTurn: () => 'x' as Player,
+				result: () => 'inProgress' as Result,
+				gameType: ({ context, event }) => {
+					if (event.type === 'SET_GAME_TYPE') {
+						return event.value;
 					}
-					return context.board;
+					return context.gameType;
 				},
+			}),
+			makeRandomMove: assign({
+				board: ({ context }) =>
+					TicTacToeHelpers.findAndReplaceRandomNull(context.board),
+				playerTurn: () => 'x' as Player,
+			}),
+			newGame: assign({
+				board: ({ context }) =>
+					Array.from({ length: context.boardSize }, () =>
+						Array(context.boardSize).fill(null),
+					),
 				playerTurn: () => 'x' as Player,
 				result: () => 'inProgress' as Result,
 			}),
